@@ -1,19 +1,12 @@
 import React, { Fragment } from "react";
 import { Grid } from '@material-ui/core';
 import Search from '../components/Search'
-// import { useAuth0 } from "@auth0/auth0-react";
+import RideCard from '../components/RideCard'
 import img from "../assets/img001.png";
 import { useDebounce } from "../hooks";
 import axios from 'axios';
 
 const Book = () => {
-  // const {
-  //   user,
-  //   isAuthenticated,
-  //   loginWithRedirect,
-  //   logout,
-  // } = useAuth0();
-
   const [destinations, setDestinations] = React.useState([])
   const [origins, setOrigins] = React.useState([])
 
@@ -31,6 +24,40 @@ const Book = () => {
     }
     return setDestinations([]);
   }
+  //NOTE: UNCOMMENT TO SEE THE LISTING
+  const results = [
+    // {
+    //   id: "address of the ride",
+    //   title: "name of the driver or eth address",
+    //   origin: "This is origin adress",
+    //   date: "2007-01-01",
+    //   destination: "This is destination adress",
+    //   seats: 1,
+    //   price: 10
+    // },
+    // {
+    //   id: "address of the ride",
+    //   title: "name of the driver or eth address",
+    //   origin: "This is origin adress",
+    //   date: "2007-01-01",
+    //   destination: "This is destination adress",
+    //   seats: 1,
+    //   price: 10
+    // },
+    // {
+    //   id: "address of the ride",
+    //   title: "name of the driver or eth address",
+    //   origin: "This is origin adress",
+    //   date: "2007-01-01",
+    //   destination: "This is destination adress",
+    //   seats: 1,
+    //   price: 10
+    // },
+  ]
+
+  const handleBooking = async () => {
+    //TODO: We need to call to the Superfluid service
+  }
 
   return (
     <Fragment>
@@ -45,6 +72,11 @@ const Book = () => {
             handleChangeDestination={useDebounce(handleChangeDestination, 1000)}
             destinations={destinations}
           />
+        </Grid>
+        <Grid item xs={12}>
+          {results.map((ride) =>
+            <RideCard key={ride.id} ride={ride} onSubmit={handleBooking} />
+          )}
         </Grid>
         <Grid item xs={4}>
           <h5>Your pick of rides at low prices</h5>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Paper, InputBase, Divider, Icon, IconButton, Button, Menu, MenuItem } from '@material-ui/core'
 import moment from 'moment';
-import { Link } from "react-router-dom";
 
 export default function Search({ handleChangeOrigin, origins, handleChangeDestination, destinations }) {
     const now = new Date();
@@ -15,8 +14,8 @@ export default function Search({ handleChangeOrigin, origins, handleChangeDestin
     const open = Boolean(anchorEl);
 
     const handleSubmit = () => {
-        console.log(selectedOrigin, selectedDestination, date)
         //TODO: call to the backend
+        console.log(selectedOrigin, selectedDestination, date);
     }
 
     return (
