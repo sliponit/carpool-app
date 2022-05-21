@@ -65,7 +65,7 @@ app.get("/api/external", checkJwt, (req, res) => {
 
 
 app.get("/api/rides", checkJwt, (req, res) => {
-  const { driver, origin } = req.query;
+  const { driver, origin, destination } = req.query;
   const { sub } = req.user;
   const address = sub.slice('oauth2|siwe|eip155:1:'.length);
   console.log({ sub, address, driver, origin });
@@ -74,11 +74,13 @@ app.get("/api/rides", checkJwt, (req, res) => {
   if (driver) {
     query += ' WHERE driver=$1';
     params.push(driver);
-  } else if (origin) {
-    query += ' WHERE ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000)'; // TODO?? 20 km
-    const [lat, lng] = origin.split(',')
-    params.push(lat);
-    params.push(lng);
+  } else if (origin || destination) {
+    if (!origin || !destination) return res.status(400).send('BadRequest: specify both origin and destination');
+
+    query += ' WHERE ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000) AND ST_DWithin(destination, ST_MakePoint($3,$4)::geography, 20000)'; // TODO?? 20 km
+    const [lat1, lng1] = origin.split(',');
+    const [lat2, lng2] = destination.split(',');
+    [lat1, lng1, lat2, lng2].forEach(param => { params.push(param) })
   }
   
 
