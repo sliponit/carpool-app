@@ -5,13 +5,19 @@ import { Link } from "react-router-dom";
 
 export default function Search({ handleChangeOrigin, origins, handleChangeDestination, destinations }) {
     const now = new Date();
-    const [date, setDate] = React.useState(null);
-    const [origin, setOrigin] = React.useState('');
+    const [date, setDate] = React.useState(moment(now).add(1, 'days').format('YYYY-MM-DDTHH:mm'));
+    const [origin, setOrigin] = React.useState(''); //NOTE: this is the string on the input
+    const [selectedOrigin, setSelectedOrigin] = React.useState(''); //NOTE: This is the full object from GEO API
     const [destination, setDestination] = React.useState('');
+    const [selectedDestination, setSelectedDestination] = React.useState('');
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
+    const handleSubmit = () => {
+        console.log(selectedOrigin, selectedDestination, date)
+        //TODO: call to the backend
+    }
 
     return (
         <Paper component="form"
@@ -54,7 +60,18 @@ export default function Search({ handleChangeOrigin, origins, handleChangeDestin
                 }}
             >
                 {origins.map((origin) =>
-                    <MenuItem key={origin.properties.label} onClick={() => { }}>{origin.properties.label}</MenuItem>
+                    <MenuItem
+                        key={origin.properties.label}
+                        onClick={() => {
+                            setOrigin(origin.properties.label);
+                            setSelectedOrigin(origin)
+                            setAnchorEl(null);
+                            handleChangeOrigin('');
+                        }
+                        }
+                    >
+                        {origin.properties.label}
+                    </MenuItem>
                 )}
             </Menu>
             <Divider
@@ -89,7 +106,17 @@ export default function Search({ handleChangeOrigin, origins, handleChangeDestin
                 }}
             >
                 {destinations.map((destination) =>
-                    <MenuItem key={destination.properties.label} onClick={() => { }}>{destination.properties.label}</MenuItem>
+                    <MenuItem
+                        key={destination.properties.label}
+                        onClick={() => {
+                            setDestination(destination.properties.label);
+                            setSelectedDestination(destination);
+                            setAnchorEl(null);
+                            handleChangeDestination('');
+                        }}
+                    >
+                        {destination.properties.label}
+                    </MenuItem>
                 )}
             </Menu>
             <Divider style={{
@@ -115,11 +142,9 @@ export default function Search({ handleChangeOrigin, origins, handleChangeDestin
                 height: 28,
                 margin: 1,
             }} orientation="vertical" />
-            <Link to={`/find-an-amigo/${date}`}>
-                <Button variant="contained" style={{ backgroundColor: 'coral', fontWeight: 'bold', color: 'white' }}>
-                    Search
-                </Button>
-            </Link>
+            <Button onClick={handleSubmit} variant="contained" style={{ backgroundColor: 'coral', fontWeight: 'bold', color: 'white' }}>
+                Search
+            </Button>
         </Paper >
     );
 }
