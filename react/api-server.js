@@ -65,15 +65,20 @@ app.get("/api/external", checkJwt, (req, res) => {
 
 
 app.get("/api/rides", checkJwt, (req, res) => {
-  const { driver } = req.query;
+  const { driver, origin } = req.query;
   const { sub } = req.user;
-  const address = sub.slice('oauth2|siwe|eip155:1:'.length)
-  console.log({ sub, address, driver })
+  const address = sub.slice('oauth2|siwe|eip155:1:'.length);
+  console.log({ sub, address, driver, origin });
   let query = 'SELECT rides_id, ST_AsGeoJSON(origin)::json as origin, ST_AsGeoJSON(destination)::json as destination, price, driver, passenger, time, created_at FROM rides';
   const params = [];
   if (driver) {
     query += ' WHERE driver=$1';
-    params.push(driver)
+    params.push(driver);
+  } else if (origin) {
+    query += ' WHERE ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000)'; // TODO?? 20 km
+    const [lat, lng] = origin.split(',')
+    params.push(lat);
+    params.push(lng);
   }
   
 
