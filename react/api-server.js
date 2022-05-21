@@ -6,6 +6,8 @@ const helmet = require("helmet");
 const jwt = require("express-jwt");
 const jwksRsa = require("jwks-rsa");
 const app = express();
+var bodyParser = require('body-parser')
+
 
 const audience =
     process.env.REACT_APP_AUDIENCE && process.env.REACT_APP_AUDIENCE !== "YOUR_API_IDENTIFIER"
@@ -33,6 +35,8 @@ if (
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(cors({ origin: appOrigin }));
+app.use(bodyParser.json());  
+
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -77,7 +81,7 @@ app.get("/api/rides", checkJwt, (req, res) => {
   } else if (origin || destination) {
     if (!origin || !destination) return res.status(400).send('BadRequest: specify both origin and destination');
 
-    query += ' WHERE ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000) AND ST_DWithin(destination, ST_MakePoint($3,$4)::geography, 20000)'; // TODO?? 20 km
+    query += ' WHERE passenger is null AND ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000) AND ST_DWithin(destination, ST_MakePoint($3,$4)::geography, 20000)'; // TODO?? 20 km
     const [lat1, lng1] = origin.split(',');
     const [lat2, lng2] = destination.split(',');
     [lat1, lng1, lat2, lng2].forEach(param => { params.push(param) })
@@ -89,7 +93,30 @@ app.get("/api/rides", checkJwt, (req, res) => {
     .query(query, params)
     .then(results => results.rows)
     .then(rides => res.send({ rides }))
-    .catch(err => console.error('Error executing query', err.stack))
+    .catch(err => {
+      console.error('Error executing query', err.stack);
+      res.status(500).send('InternalServerError')
+    })
 });
+
+
+app.post("/api/rides", checkJwt, (req, res) => {
+  const { time, origin, destination, price } = req.body;
+  const { sub } = req.user;
+  const driver = sub.slice('oauth2|siwe|eip155:1:'.length);
+  const query = `insert into rides (origin, destination, price, driver, time)
+   VALUES (ST_MakePoint($1,$2)::geography, ST_MakePoint($3,$4)::geography, $5, $6, $7)`;
+  const [lat1, lng1] = origin.split(',');
+  const [lat2, lng2] = destination.split(',');
+  const params = [lat1, lng1, lat2, lng2, price, driver, time];
+  return pool
+    .query(query, params)
+    .then(rides => res.send({ rides }))
+    .catch(err => {
+      console.error('Error executing query', err.stack);
+      res.status(500).send('InternalServerError')
+    })
+});
+
 
 app.listen(port, () => console.log(`API Server listening on port ${port}`));
