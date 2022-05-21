@@ -16,7 +16,7 @@ const domain = process.env.REACT_APP_DOMAIN;
 const port = process.env.API_PORT || 3001;
 const appPort = process.env.SERVER_PORT || 3000;
 const appOrigin = process.env.REACT_APP_ORIGIN || `http://localhost:${appPort}`;
-console.log({ audience, domain })
+
 
 if (
   !domain ||
@@ -47,10 +47,31 @@ const checkJwt = jwt({
   algorithms: ["RS256"],
 });
 
+
+const Pool = require('pg').Pool
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'postgres',
+  password: 'example',
+  port: 5432,
+})
+
 app.get("/api/external", checkJwt, (req, res) => {
   res.send({
     msg: "Your access token was successfully validated!",
   });
+});
+
+
+app.get("/api/rides", checkJwt, (req, res) => {
+  const { sub } = req.user;
+  const address = sub.slice('oauth2|siwe|eip155:1:'.length)
+  pool
+    .query('SELECT rides_id, ST_AsGeoJSON(origin)::json as origin, ST_AsGeoJSON(destination)::json as destination, price, driver, passenger, created_at FROM rides ORDER BY rides_id ASC') // 'SELECT $1::text as name', ['brianc'])
+    .then(results => results.rows) // .map(ride => { ride.origin = ride.origin.toGeoJSON(); return ride; }))
+    .then(rides => res.send({ rides, sub, address }))
+    .catch(err => console.error('Error executing query', err.stack))
 });
 
 app.listen(port, () => console.log(`API Server listening on port ${port}`));
