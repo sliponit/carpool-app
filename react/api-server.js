@@ -65,12 +65,23 @@ app.get("/api/external", checkJwt, (req, res) => {
 
 
 app.get("/api/rides", checkJwt, (req, res) => {
+  const { driver } = req.query;
   const { sub } = req.user;
   const address = sub.slice('oauth2|siwe|eip155:1:'.length)
-  pool
-    .query('SELECT rides_id, ST_AsGeoJSON(origin)::json as origin, ST_AsGeoJSON(destination)::json as destination, price, driver, passenger, created_at FROM rides ORDER BY rides_id ASC') // 'SELECT $1::text as name', ['brianc'])
-    .then(results => results.rows) // .map(ride => { ride.origin = ride.origin.toGeoJSON(); return ride; }))
-    .then(rides => res.send({ rides, sub, address }))
+  console.log({ sub, address, driver })
+  let query = 'SELECT rides_id, ST_AsGeoJSON(origin)::json as origin, ST_AsGeoJSON(destination)::json as destination, price, driver, passenger, time, created_at FROM rides';
+  const params = [];
+  if (driver) {
+    query += ' WHERE driver=$1';
+    params.push(driver)
+  }
+  
+
+  query += ' ORDER BY TIME'
+  return pool
+    .query(query, params)
+    .then(results => results.rows)
+    .then(rides => res.send({ rides }))
     .catch(err => console.error('Error executing query', err.stack))
 });
 

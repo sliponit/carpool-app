@@ -22,12 +22,12 @@ CREATE TABLE rides (
   price decimal,
   driver VARCHAR(42),
   passenger VARCHAR(42),
+  time TIMESTAMP,
   created_at TIMESTAMP default NOW()
 )
 
-
-INSERT INTO rides (origin, destination, price, driver, passenger)
-  VALUES ('POINT(2.5559 49.0083)', 'POINT(2.5559 49.0083)', 1.5, 'allo', 'ola');
+INSERT INTO rides (origin, destination, price, driver, passenger, time)
+  VALUES ('POINT(2.5559 49.0083)', 'POINT(2.5559 49.0083)', 1.5, 'allo', 'ola', NOW());
 
  
 select * from rides 
