@@ -58,7 +58,7 @@ export const ExternalApiComponent = () => {
     try {
       const token = await getAccessTokenSilently();
 
-      const response = await fetch(`${apiOrigin}/api/rides`, {
+      const response = await fetch(`${apiOrigin}/auth/rides`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -61,15 +61,15 @@ const pool = new Pool({
   port: 5432,
 })
 
-app.get("/api/external", checkJwt, (req, res) => {
+app.get("/auth/external", checkJwt, (req, res) => {
   res.send({
     msg: "Your access token was successfully validated!",
   });
 });
 
 
-app.get("/api/rides", checkJwt, (req, res) => {
-  const { driver, origin, destination } = req.query;
+app.get("/auth/rides", checkJwt, (req, res) => {
+  const { driver, day, origin, destination } = req.query;
   const { sub } = req.user;
   const address = sub.slice('oauth2|siwe|eip155:1:'.length);
   console.log({ sub, address, driver, origin, destination });
@@ -78,13 +78,13 @@ app.get("/api/rides", checkJwt, (req, res) => {
   if (driver) {
     query += ' WHERE driver=$1';
     params.push(driver);
-  } else if (origin || destination) {
-    if (!origin || !destination) return res.status(400).send('BadRequest: specify both origin and destination');
+  } else if (origin || destination || day) {
+    if (!origin || !destination || !day) return res.status(400).send('BadRequest: specify day, origin and destination');
 
-    query += ' WHERE passenger is null AND ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000) AND ST_DWithin(destination, ST_MakePoint($3,$4)::geography, 20000)'; // TODO?? 20 km
+    query += ' WHERE passenger is null AND ST_DWithin(origin, ST_MakePoint($1,$2)::geography, 20000) AND ST_DWithin(destination, ST_MakePoint($3,$4)::geography, 20000) AND CAST(time AS DATE) = $5'; // TODO?? 20 km
     const [lat1, lng1] = origin.split(',');
     const [lat2, lng2] = destination.split(',');
-    [lat1, lng1, lat2, lng2].forEach(param => { params.push(param) })
+    [lat1, lng1, lat2, lng2, day].forEach(param => { params.push(param) })
   }
   
 
@@ -100,7 +100,7 @@ app.get("/api/rides", checkJwt, (req, res) => {
 });
 
 
-app.post("/api/rides", checkJwt, (req, res) => {
+app.post("/auth/rides", checkJwt, (req, res) => {
   const { time, origin, destination, origin_address, destination_address, price } = req.body;
   const { sub } = req.user;
   const driver = sub.slice('oauth2|siwe|eip155:1:'.length);
