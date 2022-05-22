@@ -5,10 +5,17 @@ import RideCard from '../components/RideCard'
 import img from "../assets/img001.png";
 import { useDebounce } from "../hooks";
 import axios from 'axios';
+import { useAuth0 } from "@auth0/auth0-react";
+import moment from 'moment';
 
 const Book = () => {
-  const [destinations, setDestinations] = React.useState([])
-  const [origins, setOrigins] = React.useState([])
+  const [destinations, setDestinations] = React.useState([]);
+  const [origins, setOrigins] = React.useState([]);
+  const [results, setResults] = React.useState([]);
+  const {
+    getAccessTokenSilently
+  } = useAuth0();
+
 
   const handleChangeOrigin = async (address) => {
     if (address) {
@@ -24,36 +31,29 @@ const Book = () => {
     }
     return setDestinations([]);
   }
-  //NOTE: UNCOMMENT TO SEE THE LISTING
-  const results = [
-    // {
-    //   id: "address of the ride",
-    //   title: "name of the driver or eth address",
-    //   origin: "This is origin adress",
-    //   date: "2007-01-01",
-    //   destination: "This is destination adress",
-    //   seats: 1,
-    //   price: 10
-    // },
-    // {
-    //   id: "address of the ride",
-    //   title: "name of the driver or eth address",
-    //   origin: "This is origin adress",
-    //   date: "2007-01-01",
-    //   destination: "This is destination adress",
-    //   seats: 1,
-    //   price: 10
-    // },
-    // {
-    //   id: "address of the ride",
-    //   title: "name of the driver or eth address",
-    //   origin: "This is origin adress",
-    //   date: "2007-01-01",
-    //   destination: "This is destination adress",
-    //   seats: 1,
-    //   price: 10
-    // },
-  ]
+
+  const handleSearch = async (selectedOrigin, selectedDestination, date) => {
+    try {
+      if (selectedOrigin && selectedDestination && date) {
+        const token = await getAccessTokenSilently();
+        const day = moment(date).format('YYYY-MM-DD');
+        const results = await axios.get(
+          process.env.REACT_APP_API_ORIGIN + `auth/rides?origin=${selectedOrigin.geometry.coordinates.join(',')}&destination=${selectedDestination.geometry.coordinates.join(',')}&day=${day}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (results.data.rides.length) {
+          return setResults(results.data.rides)
+        }
+        return setResults([]);
+      }
+    } catch (error) {
+      return setResults([]);
+    }
+  }
 
   const handleBooking = async () => {
     //TODO: We need to call to the Superfluid service
@@ -63,13 +63,20 @@ const Book = () => {
     <Fragment>
       <Grid container spacing={2} style={{ background: '#f4f4f4', padding: 20 }}>
         <Grid item xs={12}>
-          <div style={{ height: 400, borderRadius: 4, overflow: 'hidden', background: `url(${img}) center center` }} />
+          <div style={{
+            height: 400,
+            borderRadius: 4,
+            overflow: 'hidden',
+            background: `url(${img}) center center`
+          }}
+          />
         </Grid>
         <Grid item xs={12}>
           <Search
-            handleChangeOrigin={useDebounce(handleChangeOrigin, 1000)}
+            handleSubmit={handleSearch}
+            handleChangeOrigin={useDebounce(handleChangeOrigin, 500)}
             origins={origins}
-            handleChangeDestination={useDebounce(handleChangeDestination, 1000)}
+            handleChangeDestination={useDebounce(handleChangeDestination, 500)}
             destinations={destinations}
           />
         </Grid>
