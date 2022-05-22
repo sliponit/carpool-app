@@ -1,6 +1,8 @@
 import React from 'react';
 import { Paper, InputBase, Divider, Icon, IconButton, Button, Menu, MenuItem } from '@material-ui/core'
 import moment from 'moment';
+import axios from 'axios';
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Search({ handleChangeOrigin, origins, handleChangeDestination, destinations }) {
     const now = new Date();
@@ -13,9 +15,23 @@ export default function Search({ handleChangeOrigin, origins, handleChangeDestin
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
-    const handleSubmit = () => {
-        //TODO: call to the backend
-        console.log(selectedOrigin, selectedDestination, date);
+    const {
+        getAccessTokenSilently
+    } = useAuth0();
+
+    const handleSubmit = async () => {
+        if (selectedOrigin && selectedDestination && date) {
+            const token = await getAccessTokenSilently();
+            const results = await axios.get(
+                process.env.REACT_APP_API_ORIGIN + `auth/rides?origin=${selectedOrigin.geometry.coordinates.join(',')}&destination=${selectedDestination.geometry.coordinates.join(',')}&date=${date}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+        }
     }
 
     return (
