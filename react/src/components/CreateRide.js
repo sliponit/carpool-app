@@ -5,6 +5,7 @@ import moment from 'moment';
 export default function CreateRide({ handleChangeOrigin, origins, handleChangeDestination, destinations, handleSubmit }) {
     const now = new Date();
     const [date, setDate] = React.useState(moment(now).add(1, 'days').format('YYYY-MM-DDTHH:mm'));
+    const [price, setPrice] = React.useState(10);
     const [origin, setOrigin] = React.useState(''); //NOTE: this is the string on the input
     const [selectedOrigin, setSelectedOrigin] = React.useState(''); //NOTE: This is the full object from GEO API
     const [destination, setDestination] = React.useState('');
@@ -136,7 +137,23 @@ export default function CreateRide({ handleChangeOrigin, origins, handleChangeDe
                 height: 28,
                 margin: 1,
             }} orientation="vertical" />
-            <Button onClick={() => handleSubmit(selectedOrigin, selectedDestination, date)} variant="contained" style={{ backgroundColor: 'coral', fontWeight: 'bold', color: 'white' }}>
+            <InputBase
+                style={{
+                    marginLeft: 6,
+                    flex: 1,
+                }}
+                placeholder="Price"
+                inputProps={{ 'aria-label': 'price' }}
+                value={price}
+                onChange={(e) => {
+                    setPrice(e.target.value);
+                }}
+            />
+            <Divider style={{
+                height: 28,
+                margin: 1,
+            }} orientation="vertical" />
+            <Button onClick={() => handleSubmit(selectedOrigin, selectedDestination, date, price)} variant="contained" style={{ backgroundColor: 'coral', fontWeight: 'bold', color: 'white' }}>
                 Create
             </Button>
         </Paper >
