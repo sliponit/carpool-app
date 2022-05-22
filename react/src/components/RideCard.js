@@ -45,7 +45,7 @@ export default function RideCard({ ride, onSubmit }) {
                     <CardActions style={{ float: 'right' }}>
                         {isAuthenticated ? (
                             <Button size="small" variant={'contained'} color="primary" onClick={onSubmit}>
-                                Book for {ride.price}€
+                                Book for {ride.price} MATIC
                             </Button>
                         ) : (
                             <Button size="small" variant={'contained'} color="primary" onClick={() => loginWithRedirect()}>
