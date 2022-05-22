@@ -14,6 +14,7 @@ export function getConfig() {
   return {
     domain: process.env.REACT_APP_DOMAIN,
     clientId: process.env.REACT_APP_CLIENT_ID,
+    apiOrigin: process.env.REACT_APP_API_ORIGIN,
     ...(audience ? { audience } : null),
   };
 }
