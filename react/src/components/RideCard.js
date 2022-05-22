@@ -24,26 +24,39 @@ export default function RideCard({ ride, onSubmit }) {
                     {ride.driver}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    <b>Date:</b>{moment(ride.time).format('HH:mm')}
+                    <b>Date: </b>{moment(ride.time).format('YYYY-MM-DD HH:mm')}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    <b>Origin:</b>{ride.origin_address}
+                    <b>Origin: </b>{ride.origin_address}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    <b>Destination:</b>{ride.destination_address}
+                    <b>Destination: </b>{ride.destination_address}
                 </Typography>
-            </CardContent>
-            <CardActions style={{ float: 'right' }}>
-                {isAuthenticated ? (
-                    <Button size="small" variant={'contained'} color="primary" onClick={onSubmit}>
-                        Book for {ride.price}€
-                    </Button>
+                {!onSubmit ? (
+                    <Typography variant="body2" color="textSecondary" component="p">
+                        <b>Price: </b>{ride.price}€
+                    </Typography>
                 ) : (
-                    <Button size="small" variant={'contained'} color="primary" onClick={() => loginWithRedirect()}>
-                        Login
-                    </Button>
+                    <div />
                 )}
-            </CardActions>
+            </CardContent>
+            {onSubmit ?
+                (
+                    <CardActions style={{ float: 'right' }}>
+                        {isAuthenticated ? (
+                            <Button size="small" variant={'contained'} color="primary" onClick={onSubmit}>
+                                Book for {ride.price}€
+                            </Button>
+                        ) : (
+                            <Button size="small" variant={'contained'} color="primary" onClick={() => loginWithRedirect()}>
+                                Login
+                            </Button>
+                        )}
+                    </CardActions>
+                ) : (
+                    <div />
+                )
+            }
         </Card>
     );
 }

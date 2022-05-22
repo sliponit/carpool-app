@@ -1,26 +1,79 @@
 import React, { Fragment } from "react";
 import { Grid } from '@material-ui/core';
-import { CreateRide } from '../components/CreateRide';
-// import { useAuth0 } from "@auth0/auth0-react";
+import CreateRide from '../components/CreateRide';
+import RideCard from '../components/RideCard';
+import axios from 'axios';
+import { useDebounce } from "../hooks";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Create = () => {
-  // const {
-  //   user,
-  //   isAuthenticated,
-  //   loginWithRedirect,
-  //   logout,
-  // } = useAuth0();
+  const {
+    getAccessTokenSilently
+  } = useAuth0();
 
+  const [destinations, setDestinations] = React.useState([]);
+  const [origins, setOrigins] = React.useState([]);
+  const [rides, setRides] = React.useState([]);
 
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const results = await axios.get(
+          process.env.REACT_APP_API_ORIGIN + 'auth/rides',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        if (results.data.rides.length) {
+          return setRides(results.data.rides)
+        }
+        return setRides([]);
+      } catch (error) {
+        return setRides([]);
+      }
+    })();
+  }, []);
 
+  const handleCreate = async (selectedOrigin, selectedDestination, date, price) => {
+    try {
+      if (selectedOrigin && selectedDestination && date && price) {
+        const token = await getAccessTokenSilently();
+        const body = {
+          "origin": selectedOrigin.geometry.coordinates.join(','),
+          "destination": selectedDestination.geometry.coordinates.join(','),
+          "origin_address": selectedOrigin.properties.label,
+          "destination_address": selectedDestination.properties.label,
+          "price": price,
+          "time": date
+        }
+        const results = await axios.post(process.env.REACT_APP_API_ORIGIN + 'auth/rides', body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        setRides(rides.concat(body));
+      }
+    } catch (error) {
+      return false
+    }
+  }
 
-
-
-
-  //TODO: Load my drives.
-
-  //TODO: Refactor CreateRide to standarize
-
+  const handleChangeOrigin = async (address) => {
+    if (address) {
+      const results = await axios.get('https://api-adresse.data.gouv.fr/search/?q=' + address + '&limit=5');
+      return setOrigins(results.data.features);
+    }
+    return setOrigins([]);
+  }
+  const handleChangeDestination = async (address) => {
+    if (address) {
+      const results = await axios.get('https://api-adresse.data.gouv.fr/search/?q=' + address + '&limit=5');
+      return setDestinations(results.data.features);
+    }
+    return setDestinations([]);
+  }
   return (
     <Fragment>
       <Grid container spacing={2}>
@@ -37,21 +90,24 @@ const Create = () => {
           <p>Our technology makes the entire experience with BlaBlaCar simple, so you can easily find, chat with and meet passengers right on your way.</p>
         </Grid>
         <Grid item xs={12}>
-          <CreateRide />
+          {rides.map((ride) =>
+            <RideCard key={ride.id} ride={ride} />
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          <CreateRide
+            handleSubmit={handleCreate}
+            handleChangeOrigin={useDebounce(handleChangeOrigin, 500)}
+            origins={origins}
+            handleChangeDestination={useDebounce(handleChangeDestination, 500)}
+            destinations={destinations}
+          />
         </Grid>
       </Grid>
     </Fragment>
   )
 };
 
-// {
-//   "origin": "1,3",
-//   "destination": "1,4",
-//   "origin_address": "Paris",
-//   "destination_address": "Lyon",
-//   "price": "1.5",
-//   "time": "2022-05-21T22:52:27.330Z"
-// }
 
 
 export default Create;

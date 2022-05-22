@@ -11,7 +11,7 @@ import moment from 'moment';
 const Book = () => {
   const [destinations, setDestinations] = React.useState([]);
   const [origins, setOrigins] = React.useState([]);
-  const [results, setResults] = React.useState([]);
+  const [rides, setRides] = React.useState([]);
   const {
     getAccessTokenSilently
   } = useAuth0();
@@ -37,7 +37,7 @@ const Book = () => {
       if (selectedOrigin && selectedDestination && date) {
         const token = await getAccessTokenSilently();
         const day = moment(date).format('YYYY-MM-DD');
-        const results = await axios.get(
+        const rides = await axios.get(
           process.env.REACT_APP_API_ORIGIN + `auth/rides?origin=${selectedOrigin.geometry.coordinates.join(',')}&destination=${selectedDestination.geometry.coordinates.join(',')}&day=${day}`,
           {
             headers: {
@@ -45,13 +45,13 @@ const Book = () => {
             },
           }
         );
-        if (results.data.rides.length) {
-          return setResults(results.data.rides)
+        if (rides.data.rides.length) {
+          return setRides(rides.data.rides)
         }
-        return setResults([]);
+        return setRides([]);
       }
     } catch (error) {
-      return setResults([]);
+      return setRides([]);
     }
   }
 
@@ -81,7 +81,7 @@ const Book = () => {
           />
         </Grid>
         <Grid item xs={12}>
-          {results.map((ride) =>
+          {rides.map((ride) =>
             <RideCard key={ride.id} ride={ride} onSubmit={handleBooking} />
           )}
         </Grid>
