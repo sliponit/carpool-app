@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import logo from "../assets/carPool.png";
 
 import {
   Collapse,
@@ -39,7 +40,7 @@ const NavBar = () => {
     <div className="nav-container">
       <Navbar color="light" light expand="md">
         <Container>
-          <NavbarBrand className="logo" />
+          <img className="mb-3 app-logo" src={logo} alt="React logo" width="60" style={{ marginRight: 40 }} />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>
@@ -50,18 +51,18 @@ const NavBar = () => {
                   exact
                   activeClassName="router-link-exact-active"
                 >
-                  Home
+                  Book a Ride
                 </NavLink>
               </NavItem>
               {isAuthenticated && (
                 <NavItem>
                   <NavLink
                     tag={RouterNavLink}
-                    to="/external-api"
+                    to="/create-a-ride"
                     exact
                     activeClassName="router-link-exact-active"
                   >
-                    External API
+                    Create a Ride
                   </NavLink>
                 </NavItem>
               )}
