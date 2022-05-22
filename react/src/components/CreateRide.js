@@ -2,7 +2,7 @@ import React from 'react';
 import { Paper, InputBase, Divider, Icon, IconButton, Button, Menu, MenuItem } from '@material-ui/core'
 import moment from 'moment';
 
-export default function Search({ handleChangeOrigin, origins, handleChangeDestination, destinations, handleSubmit }) {
+export default function CreateRide({ handleChangeOrigin, origins, handleChangeDestination, destinations, handleSubmit }) {
     const now = new Date();
     const [date, setDate] = React.useState(moment(now).add(1, 'days').format('YYYY-MM-DDTHH:mm'));
     const [origin, setOrigin] = React.useState(''); //NOTE: this is the string on the input
@@ -137,7 +137,7 @@ export default function Search({ handleChangeOrigin, origins, handleChangeDestin
                 margin: 1,
             }} orientation="vertical" />
             <Button onClick={() => handleSubmit(selectedOrigin, selectedDestination, date)} variant="contained" style={{ backgroundColor: 'coral', fontWeight: 'bold', color: 'white' }}>
-                Search
+                Create
             </Button>
         </Paper >
     );

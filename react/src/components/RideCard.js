@@ -6,6 +6,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import moment from 'moment'
 
 const useStyles = makeStyles({
     root: {
@@ -20,16 +21,16 @@ export default function RideCard({ ride, onSubmit }) {
         <Card className={classes.root}>
             <CardContent>
                 <Typography gutterBottom variant="h5" component="h2">
-                    {ride.title}
+                    {ride.driver}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    <b>Date:</b>{ride.date}
+                    <b>Date:</b>{moment(ride.time).format('HH:mm')}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    <b>Origin:</b>{ride.origin}
+                    <b>Origin:</b>{ride.origin_address}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    <b>Destination:</b>{ride.destination}
+                    <b>Destination:</b>{ride.destination_address}
                 </Typography>
             </CardContent>
             <CardActions style={{ float: 'right' }}>
