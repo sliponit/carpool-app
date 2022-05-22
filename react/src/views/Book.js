@@ -38,7 +38,7 @@ const Book = () => {
         const token = await getAccessTokenSilently();
         const day = moment(date).format('YYYY-MM-DD');
         const rides = await axios.get(
-          process.env.REACT_APP_API_ORIGIN + `auth/rides?origin=${selectedOrigin.geometry.coordinates.join(',')}&destination=${selectedDestination.geometry.coordinates.join(',')}&day=${day}`,
+          process.env.REACT_APP_API_ORIGIN + `/auth/rides?origin=${selectedOrigin.geometry.coordinates.join(',')}&destination=${selectedDestination.geometry.coordinates.join(',')}&day=${day}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -20,7 +20,7 @@ const Create = () => {
       try {
         const token = await getAccessTokenSilently();
         const results = await axios.get(
-          process.env.REACT_APP_API_ORIGIN + 'auth/rides',
+          process.env.REACT_APP_API_ORIGIN + '/auth/rides',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ const Create = () => {
           "price": price,
           "time": date
         }
-        const results = await axios.post(process.env.REACT_APP_API_ORIGIN + 'auth/rides', body, {
+        const results = await axios.post(process.env.REACT_APP_API_ORIGIN + '/auth/rides', body, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
