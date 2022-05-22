@@ -72,8 +72,8 @@ app.get("/api/rides", checkJwt, (req, res) => {
   const { driver, origin, destination } = req.query;
   const { sub } = req.user;
   const address = sub.slice('oauth2|siwe|eip155:1:'.length);
-  console.log({ sub, address, driver, origin });
-  let query = 'SELECT rides_id, ST_AsGeoJSON(origin)::json as origin, ST_AsGeoJSON(destination)::json as destination, price, driver, passenger, time, created_at FROM rides';
+  console.log({ sub, address, driver, origin, destination });
+  let query = 'SELECT rides_id, ST_AsGeoJSON(origin)::json as origin, ST_AsGeoJSON(destination)::json as destination, origin_address, destination_address, price, driver, passenger, time, created_at FROM rides';
   const params = [];
   if (driver) {
     query += ' WHERE driver=$1';
@@ -91,7 +91,7 @@ app.get("/api/rides", checkJwt, (req, res) => {
   query += ' ORDER BY TIME'
   return pool
     .query(query, params)
-    .then(results => results.rows)
+    .then(results => results.rows.map(ride => ({ ...ride, origin: ride.origin.coordinates.join(','), destination: ride.destination.coordinates.join(',')})))
     .then(rides => res.send({ rides }))
     .catch(err => {
       console.error('Error executing query', err.stack);
@@ -101,17 +101,17 @@ app.get("/api/rides", checkJwt, (req, res) => {
 
 
 app.post("/api/rides", checkJwt, (req, res) => {
-  const { time, origin, destination, price } = req.body;
+  const { time, origin, destination, origin_address, destination_address, price } = req.body;
   const { sub } = req.user;
   const driver = sub.slice('oauth2|siwe|eip155:1:'.length);
-  const query = `insert into rides (origin, destination, price, driver, time)
-   VALUES (ST_MakePoint($1,$2)::geography, ST_MakePoint($3,$4)::geography, $5, $6, $7)`;
+  const query = `insert into rides (origin, destination, origin_address, destination_address, price, driver, time)
+   VALUES (ST_MakePoint($1,$2)::geography, ST_MakePoint($3,$4)::geography, $5, $6, $7, $8, $9)`;
   const [lat1, lng1] = origin.split(',');
   const [lat2, lng2] = destination.split(',');
-  const params = [lat1, lng1, lat2, lng2, price, driver, time];
+  const params = [lat1, lng1, lat2, lng2, origin_address, destination_address, price, driver, time];
   return pool
     .query(query, params)
-    .then(rides => res.send({ rides }))
+    .then(rides => res.send('OK'))
     .catch(err => {
       console.error('Error executing query', err.stack);
       res.status(500).send('InternalServerError')

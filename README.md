@@ -19,6 +19,8 @@ CREATE TABLE rides (
   rides_id SERIAL PRIMARY KEY,
   origin geography(point) not NULL,
   destination geography(point) not NULL,
+  origin_address VARCHAR(512) not null,
+  destination_address VARCHAR(512) not null,
   price decimal not NULL,
   driver VARCHAR(42) not NULL,
   passenger VARCHAR(42),
@@ -26,8 +28,8 @@ CREATE TABLE rides (
   created_at TIMESTAMP default NOW()
 )
 
-INSERT INTO rides (origin, destination, price, driver, passenger, time)
-  VALUES ('POINT(2.5559 49.0083)', 'POINT(2.5559 49.0083)', 1.5, 'allo', 'ola', NOW());
+INSERT INTO rides (origin, destination, origin_address, destination_address, price, driver, passenger, time)
+  VALUES ('POINT(2.5559 49.0083)', 'POINT(3.5559 49.0083)', 'Paris', 'Lyon', 1.5, 'allo', 'ola', NOW());
 
 select * from rides 
 ```
